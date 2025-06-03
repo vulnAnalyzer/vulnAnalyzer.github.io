@@ -29,7 +29,7 @@ tagline: VulnAnalyzer Configuration Explore # it will display as the sub-title
 url: 'https://vulnAnalyzer.github.io/'
 
 github:
-  username: vulnscanpro # change to your github username
+  username: vulnAnalyzer # change to your github username
 
 
 social:

@@ -3,23 +3,21 @@ layout: page
 ---
 
 <div class="post-content" style="text-align: justify;">
-  Vulnerabilities are a known problem in modern Open Source Software (OSS). Most developers often rely on third-party
-  libraries to accelerate feature implementation. However, these libraries may contain vulnerabilities that attackers
-  can exploit to propagate malicious code, posing security risks to dependent projects. Existing research addresses
-  these challenges through software composition analysis (SCA) for vulnerability detection and remediation.
-  Nevertheless, current solutions may introduce additional issues, such as incompatibilities, dependency conflicts, and
-  additional vulnerabilities.<br>
-  To address this, we propose <u>Vuln</u> <u>Scan</u> and <u>Pro</u>tection (<strong>VULNSCANPRO</strong>), a robust
-  solution for detection and remediation vulnerabilities in Maven projects. Specifically, <strong>VULNSCANPRO</strong>
-  builds a fine-grained method graph to identify unreachable methods. The method graph is mapped to the
-  project’s dependency tree, constructing a comprehensive vulnerability propagation graph that identifies unreachable
-  vulnerable APIs and dependencies. Based on this analysis, we propose three solutions for vulnerability remediation:
-  (1) Removing unreachable vulnerable dependencies, thereby resolving security risks and reducing maintenance overhead.
-  (2) Upgrading vulnerable dependencies to the closest non-vulnerable versions, while pinning the versions of transitive
-  dependencies introduced by the vulnerable dependency, in order to mitigate compatibility issues and prevent the
-  introduction of new vulnerabilities. (3) Eliminating unreachable vulnerable APIs, particularly when security patches
-  are either incompatible or absent. Experimental results show that these solutions effectively mitigate vulnerabilities
-  and enhance the overall security of the project.
+  Identifying vulnerable APIs is critical for enhancing software security, yet existing methods face challenges such as
+  incomplete patch information, noisy code changes, and limitations of large language models (LLMs). Public
+  vulnerability knowledge bases (e.g., the Snyk vulnerability database) often contain inconsistent or missing patch
+  data. Furthermore, patch commits frequently include both security fixes and unrelated modifications, which reduces
+  detection accuracy. While LLMs have shown strong capabilities in code understanding, they suffer from input length
+  constraints and may be distracted by irrelevant context, leading to false positives.<br/>
+
+  To address these issues, we propose <strong>VULNANALYZER</strong>, a novel framework that combines static analysis with LLMs
+  guided by vulnerability context prompts. Specifically, we first collect vulnerability metadata (e.g., CVEs, CWEs,
+  vulnerable and patched versions) from the GitHub Advisory Database. Next, we use static analysis to extract source
+  code differences between patched and adjacent vulnerable versions of libraries. Finally, we leverage LLMs, guided by
+  carefully constructed vulnerability context prompts, to identify vulnerable APIs within these code differences. By
+  focusing on method-level granularity, <strong>VULNANALYZER</strong> effectively mitigates input size limitations and reduces
+  hallucinations, enabling more accurate and fine-grained vulnerability detection. This approach advances the
+  reliability of vulnerability analysis in modern software ecosystems.
 
 </div>
 
@@ -30,8 +28,8 @@ layout: page
     <img src="/assets/img/tool.svg" alt="avatar" height="50" width="50">
 
     <span>
-      <a href="https://vulnscanpro.github.io/Vulnscanpro"><strong> An effective automated tool for vulnerability
-          remediation</strong></a><br>
+      <a href="https://vulnanalyzer.github.io/Vulnanalyzer"><strong> An effective automated tool for vulnerability
+          detection</strong></a><br>
     </span>
   </div>
 
@@ -40,24 +38,10 @@ layout: page
     <img src="/assets/img/download.svg" alt="avatar" height="50" width="50">
 
     <span>
-      <a href="https://vulnscanpro.github.io//Download-Datasets">
+      <a href="https://vulnanalyzer.github.io//Download-Datasets">
         <strong>Download the dataSets<br></strong>
       </a>
     </span>
   </div>
 
-</div>
-
-<div id="d-help-win" class="d-help-win" style="display: none;">
-  <div id="win-title">Help
-    <span id="d-help-colse" clss="close_2" class="close_2">
-      ×
-    </span>
-  </div>
-  <div id="win-content">
-    <center><strong>
-        <font size="4">A demo of VULNSCANPRO</font>
-      </strong></center>
-    <img src="/assets/img/guide.gif" alt="avatar">
-  </div>
 </div>
