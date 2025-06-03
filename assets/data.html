@@ -2,41 +2,56 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Vulnerability API Table</title>
-<link rel="stylesheet" href="/assets/css/jquery.dataTables.min.css">
+<title>Transposed Vulnerability Table</title>
 <style>
-	body{font-family:Arial, sans-serif;padding:20px;}
-
-	#severityFilter{margin-bottom:10px;}
-
-	/* 表格整体排版 */
-	table.dataTable{table-layout:fixed;}
-	table.dataTable td{white-space:normal!important;}
-
-	/* API & Description 单元格：不出现滚动条，超长省略号 */
-	td.api-cell,
-	td.description-cell{
-		max-width:200px;          /* 只限制宽度，不限制高度 */
-		overflow:hidden;
-		white-space:nowrap;
-		text-overflow:ellipsis;
-		position:relative;
+	body {
+		font-family: Arial, sans-serif;
+		padding: 20px;
 	}
-
-	/* 鼠标悬停时的 tooltip */
-	td.api-cell:hover::after,
-	td.description-cell:hover::after{
-		content:attr(data-fulltext);
-		position:absolute;
-		top:100%; left:0;
-		background:rgba(0,0,0,.85);
-		color:#fff;
-		padding:6px 10px;
-		border-radius:5px;
-		white-space:pre-wrap;
-		max-width:400px;          /* 控制宽度，依旧不出现滚动条 */
-		z-index:1000;
-		pointer-events:none;
+	#severityFilter {
+		margin-bottom: 15px;
+	}
+	table {
+		border-collapse: collapse;
+		width: 100%;
+	}
+	th, td {
+		border: 1px solid #ccc;
+		padding: 8px;
+		text-align: left;
+		vertical-align: top;
+	}
+	th {
+		background-color: #f2f2f2;
+		width: 150px;
+	}
+	td.ellipsis {
+		max-width: 200px;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		position: relative;
+	}
+	td.ellipsis:hover::after {
+		content: attr(data-fulltext);
+		position: absolute;
+		top: 100%;
+		left: 0;
+		background: rgba(0, 0, 0, 0.85);
+		color: #fff;
+		padding: 6px 10px;
+		border-radius: 5px;
+		white-space: pre-wrap;
+		max-width: 400px;
+		z-index: 1000;
+		pointer-events: none;
+	}
+	.pagination {
+		margin-top: 15px;
+	}
+	.pagination button {
+		padding: 6px 12px;
+		margin-right: 5px;
 	}
 </style>
 </head>
@@ -51,59 +66,93 @@
 	<option value="Critical">Critical</option>
 </select>
 
-<table id="vulnerabilityTable" class="display" style="width:100%">
-	<thead>
-		<tr>
-			<th>Package</th><th>Patched Version</th><th>CVE</th><th>CWE</th>
-			<th>Severity</th><th>Semver</th><th>API</th><th>Description</th><th>URL</th>
-		</tr>
-	</thead>
-	<tbody></tbody>
-</table>
+<div id="tableContainer"></div>
+<div class="pagination" id="paginationControls"></div>
 
 <script src="/assets/js/jquery-3.7.1.min.js"></script>
-<script src="/assets/js/jquery.dataTables.min.js"></script>
 <script>
-let allData=[];
+	let allData = [];
+	let currentPage = 0;
+	const pageSize = 1;
 
-function renderTable(){
-	const severity=$('#severityFilter').val();
-	const data=allData.filter(r=>severity? r[4]===severity : true);
+	const headers = [
+		"Package", "Patched Version", "CVE", "CWE",
+		"Severity", "Semver", "API", "Description", "URL"
+	];
 
-	$('#vulnerabilityTable').DataTable({
-		destroy:true,
-		data:data,
-		deferRender:true,
-		pageLength:3,
-		paging:true,
-		scrollY:false,
-		scrollCollapse:false,
-		scrollX:false,
-		scroller:false,
-		language:{searchPlaceholder:"Search by CVE or CWE..."},
-		columns:[
-			{data:0,width:'7%'},{data:1,width:'5%'},{data:2,width:'10%'},
-			{data:3,width:'10%'},{data:4,width:'5%'},{data:5,width:'10%'},
-			{data:6},{data:7},
-			{data:8,width:'2%',render:data=>`<a href="${data}" target="_blank">Link</a>`}
-		],
-		createdRow:(row,data)=>{
-			$('td',row).eq(6).addClass('api-cell').attr('data-fulltext',data[6]);
-			$('td',row).eq(7).addClass('description-cell').attr('data-fulltext',data[7]);
+	function renderTransposedTable(dataChunk) {
+		let html = `<table><tbody>`;
+
+		// 行循环
+		for (let i = 0; i < headers.length; i++) {
+			html += `<tr><th>${headers[i]}</th>`;
+			for (let j = 0; j < dataChunk.length; j++) {
+				let value = dataChunk[j][i];
+
+				if (headers[i] === "URL") {
+					html += `<td><a href="${value}" target="_blank">Link</a></td>`;
+				} else {
+					const escaped = String(value).replace(/"/g, '&quot;');
+					html += `<td class="ellipsis" data-fulltext="${escaped}">${escaped}</td>`;
+				}
+			}
+			html += `</tr>`;
 		}
-	});
-}
+		html += `</tbody></table>`;
 
-$(document).ready(()=>{
-	$.getJSON('../data/RQ1/data.json',json=>{
-		allData=json.flatMap(e=>e.vulnerableAPI.map(api=>[
-			e.name,e.patchedVersion,e.CVE,e.CWE,e.severityLevel,
-			e.semver,api.API,api.description,e.URL
-		]));
-		renderTable();
-		$('#severityFilter').on('change',renderTable);
+		document.getElementById('tableContainer').innerHTML = html;
+	}
+
+	function renderPagination(totalPages) {
+		let html = '';
+		for (let i = 0; i < totalPages; i++) {
+			html += `<button ${i === currentPage ? 'disabled' : ''} onclick="goToPage(${i})">${i + 1}</button>`;
+		}
+		document.getElementById('paginationControls').innerHTML = html;
+	}
+
+	function goToPage(page) {
+		currentPage = page;
+		render();
+	}
+
+	function render() {
+		const severity = $('#severityFilter').val();
+		const filtered = severity ? allData.filter(d => d[4] === severity) : allData;
+
+		const totalPages = Math.ceil(filtered.length / pageSize);
+		const start = currentPage * pageSize;
+		const end = start + pageSize;
+		const chunk = filtered.slice(start, end);
+
+		renderTransposedTable(chunk);
+		renderPagination(totalPages);
+	}
+
+	$(document).ready(function () {
+		$.getJSON('../data/RQ1/data.json', function (json) {
+			allData = json.flatMap(entry => {
+				return entry.vulnerableAPI.map(api => [
+					entry.name,
+					entry.patchedVersion,
+					entry.CVE,
+					entry.CWE,
+					entry.severityLevel,
+					entry.semver,
+					api.API,
+					api.description,
+					entry.URL
+				]);
+			});
+
+			render();
+
+			$('#severityFilter').on('change', function () {
+				currentPage = 0;
+				render();
+			});
+		});
 	});
-});
 </script>
 </body>
 </html>
