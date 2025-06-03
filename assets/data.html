@@ -85,27 +85,30 @@
         deferRender: true,
         pageLength: 10,
         paging: true,
+        ordering: false, // 全局禁用排序
         scrollY: false,
         scrollCollapse: false,
         scrollX: false,
         scroller: false,
         language: { searchPlaceholder: "Search by CVE or CWE..." },
         columns: [
-          { data: 0, width: '10%' },  // Package
-          { data: 1, width: '8%' },   // Patched Version
-          { data: 2, width: '10%' },  // CVE
-          { data: 3, width: '10%' },  // CWE
-          { data: 4, width: '8%' },   // Severity
-          { data: 5, width: '10%' },  // Semver
+          { data: 0, width: '10%', orderable: false },
+          { data: 1, width: '8%', orderable: false },
+          { data: 2, width: '10%', orderable: false },
+          { data: 3, width: '10%', orderable: false },
+          { data: 4, width: '8%', orderable: false },
+          { data: 5, width: '10%', orderable: false },
           {
             data: null,
             width: '5%',
+            orderable: false,
             render: (data, type, row, meta) =>
               `<button onclick="showDetails(${meta.row})">View</button>`
           },
           {
             data: 8,
             width: '4%',
+            orderable: false,
             render: data => `<a href="${data}" target="_blank">Link</a>`
           }
         ]
