@@ -45,9 +45,9 @@ layout: default
   <!-- panel -->
   <div id="panel-wrapper" class="col-xl-3 ps-2 text-muted">
     {% if page.layout == 'home' %}
-     <div id="d-help">
+     <!-- <div id="d-help">
         <img id="help-img" style="cursor:pointer;" class="d-help-img" alt="help" src="/assets/img/help.gif">
-     </div>
+     </div> -->
       {% endif %}
     {% for _include in layout.panel_includes %}
       {% assign _include_path = _include | append: '.html' %}
