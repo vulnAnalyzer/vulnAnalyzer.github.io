@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>Vulnerability API Table</title>
+		<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+		<link rel="stylesheet" href="https://cdn.datatables.net/scroller/2.3.0/css/scroller.dataTables.min.css">
+		<style>
+			body {
+				font-family: Arial, sans-serif;
+				padding: 20px;
+			}
+
+			#severityFilter,
+			#cveFilter,
+			#cweFilter {
+				margin-bottom: 10px;
+			}
+
+			td.api-cell,
+			td.description-cell {
+				max-width: 200px;
+				max-height: 6em;
+				overflow-y: auto;
+				/* 只允许上下滚动 */
+				overflow-x: hidden;
+				/* 禁止左右滚动 */
+				white-space: pre-wrap;
+				/* 自动换行 */
+				word-break: break-word;
+				/* 长单词换行 */
+			}
+
+			table.dataTable td {
+				white-space: normal !important;
+				/* 强制内容自动换行 */
+			}
+			table.dataTable {
+			  table-layout: fixed;
+			}
+
+		</style>
+	</head>
+	<body>
+
+		<label for="severityFilter">Filter by Severity:</label>
+		<select id="severityFilter">
+			<option value="">All</option>
+			<option value="Low">Low</option>
+			<option value="Moderate">Moderate</option>
+			<option value="High">High</option>
+			<option value="Critical">Critical</option>
+		</select>
+
+
+		<div style="height: 80%;">
+			<table id="vulnerabilityTable" class="display" style="width:100%">
+				<thead>
+					<tr>
+						<th>Package</th>
+						<th>Patched Version</th>
+						<th>CVE</th>
+						<th>CWE</th>
+						<th>Severity</th>
+						<th>Semver</th>
+						<th>API</th>
+						<th>Description</th>
+						<th>URL</th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+
+		<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+		<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+		<script src="https://cdn.datatables.net/scroller/2.3.0/js/dataTables.scroller.min.js"></script>
+
+		<script>
+			let allData = [];
+
+			function renderTable() {
+				// 获取筛选条件
+				const severityFilter = $('#severityFilter').val();
+
+				// 只根据一个条件进行筛选，选择优先级：Severity > CVE > CWE
+				const filteredData = allData.filter(item => {
+					if (severityFilter) {
+						return item[4] === severityFilter;
+					}
+					return true; // 如果没有选择筛选条件，则显示所有数据
+				});
+
+				const windowHeight = $(window).height();
+				const scrollY = windowHeight * 0.8; // 设置为窗口高度的 80%
+
+				// 渲染表格
+				const table = $('#vulnerabilityTable').DataTable({
+					destroy: true,
+					data: filteredData,
+					deferRender: true,
+					scrollY: scrollY,
+					scrollCollapse: true,
+					scrollX: false, // 禁止横向滚动
+					scroller: true,
+					language: {
+						searchPlaceholder: "Search by CVE or CWE..."
+					},
+					columns: [{
+							title: "Package",
+							data: 0,
+							width:'7%'
+						},
+						{
+							title: "Patched Version",
+							data: 1,
+							width:'5%'
+						},
+						{
+							title: "CVE",
+							data: 2,
+							width:'10%'
+						},
+						{
+							title: "CWE",
+							data: 3,
+							width:'10%'
+						},
+						{
+							title: "Severity",
+							data: 4,
+							width:'5%'
+						},
+						{
+							title: "Semver",
+							data: 5,
+							width:'10%'
+						},
+						{
+							title: "API",
+							data: 6
+						},
+						{
+							title: "Description",
+							data: 7
+						},
+						{
+							title: "URL",
+							data: 8,
+							width:"2%",
+							render: function(data) {
+								return `<a href="${data}" target="_blank">Link</a>`;
+							}
+						}
+					],
+					createdRow: function(row, data, dataIndex) {
+						// 添加特定的类来控制API和Description单元格的样式
+						$('td', row).eq(6).addClass('api-cell');
+						$('td', row).eq(7).addClass('description-cell');
+					}
+				});
+			}
+
+			$(document).ready(function() {
+				$.getJSON('../data/RQ1/data.json', function(json) {
+					// 处理JSON数据
+					allData = json.flatMap(entry => {
+						return entry.vulnerableAPI.map(api => [
+							entry.name,
+							entry.patchedVersion,
+							entry.CVE,
+							entry.CWE,
+							entry.severityLevel,
+							entry.semver,
+							api.API,
+							api.description,
+							entry.URL
+						]);
+					});
+
+					// 渲染表格
+					renderTable();
+
+					// 填充 CVE 和 CWE 的筛选下拉框，并按降序排列
+					const cveOptions = [...new Set(allData.map(item => item[2]))]; // 获取唯一的 CVE
+					cveOptions.sort().reverse(); // 降序排列
+
+					// 监听 Severity、CVE 和 CWE 的筛选选择
+					$('#severityFilter').on('change', renderTable);
+				});
+			});
+		</script>
+	</body>
+</html>
