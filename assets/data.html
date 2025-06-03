@@ -2,45 +2,24 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Transposed Vulnerability Table</title>
+<title>Vulnerability API Table</title>
+<link rel="stylesheet" href="/assets/css/jquery.dataTables.min.css">
 <style>
-	body {
-		font-family: Arial, sans-serif;
-		padding: 20px;
-	}
-	#severityFilter {
-		margin-bottom: 15px;
-	}
-	table {
-		border-collapse: collapse;
-		width: 100%;
-	}
-	th, td {
-		border: 1px solid #ccc;
-		padding: 8px;
-		text-align: left;
-		vertical-align: top;
-	}
-	th {
-		background-color: #f2f2f2;
-		width: 150px;
-	}
-	.pagination {
-		margin-top: 15px;
-	}
-	.pagination button {
-		padding: 6px 12px;
-		margin-right: 5px;
-	}
-	/* 弹出层样式 */
+	body { font-family: Arial, sans-serif; padding: 20px; }
+	#severityFilter { margin-bottom: 10px; }
+	table.dataTable { table-layout: fixed; }
+	table.dataTable td { white-space: normal !important; }
+	.pagination { margin-top: 15px; }
+
+	/* Modal 样式 */
 	#modal {
 		display: none;
 		position: fixed;
 		top: 0; left: 0; right: 0; bottom: 0;
-		background-color: rgba(0,0,0,0.5);
+		background-color: rgba(0, 0, 0, 0.5);
 		justify-content: center;
 		align-items: center;
-		z-index: 999;
+		z-index: 1000;
 	}
 	#modalContent {
 		background: #fff;
@@ -49,7 +28,7 @@
 		max-width: 600px;
 		max-height: 80%;
 		overflow-y: auto;
-		box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 	}
 	#modalContent h3 {
 		margin-top: 0;
@@ -70,8 +49,15 @@
 	<option value="Critical">Critical</option>
 </select>
 
-<div id="tableContainer"></div>
-<div class="pagination" id="paginationControls"></div>
+<table id="vulnerabilityTable" class="display" style="width:100%">
+	<thead>
+		<tr>
+			<th>Package</th><th>Patched Version</th><th>CVE</th><th>CWE</th>
+			<th>Severity</th><th>Semver</th><th>Details</th><th>URL</th>
+		</tr>
+	</thead>
+	<tbody></tbody>
+</table>
 
 <!-- 弹出层 -->
 <div id="modal">
@@ -83,100 +69,70 @@
 </div>
 
 <script src="/assets/js/jquery-3.7.1.min.js"></script>
+<script src="/assets/js/jquery.dataTables.min.js"></script>
 <script>
 	let allData = [];
-	let currentPage = 0;
-	const pageSize = 1;
 
-	const headers = [
-		"Package", "Patched Version", "CVE", "CWE",
-		"Severity", "Semver", "Details", "URL"
-	];
-
-	function renderTransposedTable(dataChunk) {
-		let html = `<table><tbody>`;
-
-		for (let i = 0; i < headers.length; i++) {
-			html += `<tr><th>${headers[i]}</th>`;
-			for (let j = 0; j < dataChunk.length; j++) {
-				let value = dataChunk[j][i];
-
-				if (headers[i] === "URL") {
-					html += `<td><a href="${value}" target="_blank">Link</a></td>`;
-				} else if (headers[i] === "Details") {
-					html += `<td><button onclick="showDetails(${currentPage * pageSize + j})">View</button></td>`;
-				} else {
-					html += `<td>${value}</td>`;
-				}
-			}
-			html += `</tr>`;
-		}
-		html += `</tbody></table>`;
-
-		document.getElementById('tableContainer').innerHTML = html;
-	}
-
-	function renderPagination(totalPages) {
-		let html = '';
-		for (let i = 0; i < totalPages; i++) {
-			html += `<button ${i === currentPage ? 'disabled' : ''} onclick="goToPage(${i})">${i + 1}</button>`;
-		}
-		document.getElementById('paginationControls').innerHTML = html;
-	}
-
-	function goToPage(page) {
-		currentPage = page;
-		render();
-	}
-
-	function render() {
+	function renderTable() {
 		const severity = $('#severityFilter').val();
-		const filtered = severity ? allData.filter(d => d[4] === severity) : allData;
+		const data = allData.filter(r => severity ? r[4] === severity : true);
 
-		const totalPages = Math.ceil(filtered.length / pageSize);
-		const start = currentPage * pageSize;
-		const end = start + pageSize;
-		const chunk = filtered.slice(start, end);
-
-		renderTransposedTable(chunk);
-		renderPagination(totalPages);
+		$('#vulnerabilityTable').DataTable({
+			destroy: true,
+			data: data,
+			deferRender: true,
+			pageLength: 3,
+			paging: true,
+			scrollY: false,
+			scrollCollapse: false,
+			scrollX: false,
+			scroller: false,
+			language: { searchPlaceholder: "Search by CVE or CWE..." },
+			columns: [
+				{ data: 0, width: '10%' },  // Package
+				{ data: 1, width: '8%' },   // Patched Version
+				{ data: 2, width: '10%' },  // CVE
+				{ data: 3, width: '10%' },  // CWE
+				{ data: 4, width: '8%' },   // Severity
+				{ data: 5, width: '10%' },  // Semver
+				{
+					data: null,
+					width: '5%',
+					render: (data, type, row, meta) =>
+						`<button onclick="showDetails(${meta.row})">View</button>`
+				},
+				{
+					data: 8,
+					width: '4%',
+					render: data => `<a href="${data}" target="_blank">Link</a>`
+				}
+			]
+		});
 	}
 
+	// 处理弹出详情内容
 	function showDetails(index) {
 		const item = allData[index];
 		const api = item[6];
-		const desc = item[7];
-		$('#detailsText').html(`<strong>API:</strong><pre>${api}</pre><strong>Description:</strong><pre>${desc}</pre>`);
+		const description = item[7];
+		$('#detailsText').html(`<strong>API:</strong><pre>${api}</pre><strong>Description:</strong><pre>${description}</pre>`);
 		$('#modal').css('display', 'flex');
 	}
 
-	$('#closeModal').on('click', function () {
+	$('#closeModal').on('click', () => {
 		$('#modal').hide();
 	});
 
-	$(document).ready(function () {
-		$.getJSON('../data/RQ1/data.json', function (json) {
-			allData = json.flatMap(entry => {
-				return entry.vulnerableAPI.map(api => [
-					entry.name,
-					entry.patchedVersion,
-					entry.CVE,
-					entry.CWE,
-					entry.severityLevel,
-					entry.semver,
-					'Details',  // 占位符，用于按钮列
-					api.API,
-					api.description,
-					entry.URL
-				]);
-			});
-
-			render();
-
-			$('#severityFilter').on('change', function () {
-				currentPage = 0;
-				render();
-			});
+	$(document).ready(() => {
+		$.getJSON('../../data/RQ1/data.json', json => {
+			allData = json.flatMap(e =>
+				e.vulnerableAPI.map(api => [
+					e.name, e.patchedVersion, e.CVE, e.CWE, e.severityLevel,
+					e.semver, api.API, api.description, e.URL
+				])
+			);
+			renderTable();
+			$('#severityFilter').on('change', renderTable);
 		});
 	});
 </script>
