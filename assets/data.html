@@ -7,15 +7,18 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     #severityFilter { margin-bottom: 10px; }
+
     table.dataTable {
       table-layout: fixed;
       word-break: break-word;
     }
+
     table.dataTable td {
       white-space: normal !important;
       word-break: break-word;
       vertical-align: top;
     }
+
     .pagination { margin-top: 15px; }
 
     /* Modal 样式 */
@@ -28,6 +31,7 @@
       align-items: center;
       z-index: 1000;
     }
+
     #modalContent {
       background: #fff;
       padding: 20px;
@@ -35,13 +39,21 @@
       max-width: 600px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
     }
+
     #modalContent h3 {
       margin-top: 0;
     }
+
     #detailsText pre {
+      background-color: #f8f9fa;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
       white-space: pre-wrap;
       word-wrap: break-word;
+      font-family: Consolas, monospace;
     }
+
     #closeModal {
       margin-top: 20px;
     }
@@ -102,7 +114,7 @@
         scrollX: false,
         scrollY: false,
         scrollCollapse: false,
-        ordering: false, // 关闭排序
+        ordering: false, // 关闭排序功能
         language: { searchPlaceholder: "Search by CVE or CWE..." },
         columns: [
           { data: 0, width: '12%', orderable: false },
@@ -132,9 +144,16 @@
       const item = allData[index];
       const api = item[6];
       const description = item[7];
-      $('#detailsText').html(
-        `<strong>API:</strong><pre>${api}</pre><strong>Description:</strong><pre>${description}</pre>`
-      );
+      $('#detailsText').html(`
+        <div style="margin-bottom: 10px;">
+          <strong>Vulnerable API</strong>
+          <pre>${api}</pre>
+        </div>
+        <div>
+          <strong>Vulnerable Description</strong>
+          <pre>${description}</pre>
+        </div>
+      `);
       $('#modal').css('display', 'flex');
     }
 
