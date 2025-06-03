@@ -25,33 +25,37 @@
 		background-color: #f2f2f2;
 		width: 150px;
 	}
-	td.ellipsis {
-		max-width: 200px;
-		overflow: hidden;
-		white-space: nowrap;
-		text-overflow: ellipsis;
-		position: relative;
-	}
-	td.ellipsis:hover::after {
-		content: attr(data-fulltext);
-		position: absolute;
-		top: 100%;
-		left: 0;
-		background: rgba(0, 0, 0, 0.85);
-		color: #fff;
-		padding: 6px 10px;
-		border-radius: 5px;
-		white-space: pre-wrap;
-		max-width: 400px;
-		z-index: 1000;
-		pointer-events: none;
-	}
 	.pagination {
 		margin-top: 15px;
 	}
 	.pagination button {
 		padding: 6px 12px;
 		margin-right: 5px;
+	}
+	/* 弹出层样式 */
+	#modal {
+		display: none;
+		position: fixed;
+		top: 0; left: 0; right: 0; bottom: 0;
+		background-color: rgba(0,0,0,0.5);
+		justify-content: center;
+		align-items: center;
+		z-index: 999;
+	}
+	#modalContent {
+		background: #fff;
+		padding: 20px;
+		border-radius: 8px;
+		max-width: 600px;
+		max-height: 80%;
+		overflow-y: auto;
+		box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+	}
+	#modalContent h3 {
+		margin-top: 0;
+	}
+	#closeModal {
+		margin-top: 20px;
 	}
 </style>
 </head>
@@ -69,6 +73,15 @@
 <div id="tableContainer"></div>
 <div class="pagination" id="paginationControls"></div>
 
+<!-- 弹出层 -->
+<div id="modal">
+	<div id="modalContent">
+		<h3>Details</h3>
+		<div id="detailsText"></div>
+		<button id="closeModal">Close</button>
+	</div>
+</div>
+
 <script src="/assets/js/jquery-3.7.1.min.js"></script>
 <script>
 	let allData = [];
@@ -77,13 +90,12 @@
 
 	const headers = [
 		"Package", "Patched Version", "CVE", "CWE",
-		"Severity", "Semver", "API", "Description", "URL"
+		"Severity", "Semver", "Details", "URL"
 	];
 
 	function renderTransposedTable(dataChunk) {
 		let html = `<table><tbody>`;
 
-		// 行循环
 		for (let i = 0; i < headers.length; i++) {
 			html += `<tr><th>${headers[i]}</th>`;
 			for (let j = 0; j < dataChunk.length; j++) {
@@ -91,9 +103,10 @@
 
 				if (headers[i] === "URL") {
 					html += `<td><a href="${value}" target="_blank">Link</a></td>`;
+				} else if (headers[i] === "Details") {
+					html += `<td><button onclick="showDetails(${currentPage * pageSize + j})">View</button></td>`;
 				} else {
-					const escaped = String(value).replace(/"/g, '&quot;');
-					html += `<td class="ellipsis" data-fulltext="${escaped}">${escaped}</td>`;
+					html += `<td>${value}</td>`;
 				}
 			}
 			html += `</tr>`;
@@ -129,6 +142,18 @@
 		renderPagination(totalPages);
 	}
 
+	function showDetails(index) {
+		const item = allData[index];
+		const api = item[6];
+		const desc = item[7];
+		$('#detailsText').html(`<strong>API:</strong><pre>${api}</pre><strong>Description:</strong><pre>${desc}</pre>`);
+		$('#modal').css('display', 'flex');
+	}
+
+	$('#closeModal').on('click', function () {
+		$('#modal').hide();
+	});
+
 	$(document).ready(function () {
 		$.getJSON('../data/RQ1/data.json', function (json) {
 			allData = json.flatMap(entry => {
@@ -139,6 +164,7 @@
 					entry.CWE,
 					entry.severityLevel,
 					entry.semver,
+					'Details',  // 占位符，用于按钮列
 					api.API,
 					api.description,
 					entry.URL
