@@ -10,7 +10,7 @@ order: 1
 
 
 ## Vulnerable APIs Identified by *VulnAnalyzer*
-<iframe src="/assets/data.html" width="100%" height="60%" frameborder="0"></iframe>
+<iframe src="/assets/data.html" width="100%" height="500px" frameborder="0"></iframe>
 
 
 
