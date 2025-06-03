@@ -7,8 +7,15 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
     #severityFilter { margin-bottom: 10px; }
-    table.dataTable { table-layout: fixed; }
-    table.dataTable td { white-space: normal !important; }
+    table.dataTable {
+      table-layout: fixed;
+      word-break: break-word;
+    }
+    table.dataTable td {
+      white-space: normal !important;
+      word-break: break-word;
+      vertical-align: top;
+    }
     .pagination { margin-top: 15px; }
 
     /* Modal 样式 */
@@ -54,8 +61,14 @@
   <table id="vulnerabilityTable" class="display" style="width:100%">
     <thead>
       <tr>
-        <th>Package</th><th>Patched Version</th><th>CVE</th><th>CWE</th>
-        <th>Severity</th><th>Semver</th><th>Details</th><th>URL</th>
+        <th>Package</th>
+        <th>Patched Version</th>
+        <th>CVE</th>
+        <th>CWE</th>
+        <th>Severity</th>
+        <th>Semver</th>
+        <th>Details</th>
+        <th>URL</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -85,29 +98,29 @@
         deferRender: true,
         pageLength: 10,
         paging: true,
-        ordering: false, // 全局禁用排序
+        autoWidth: false,
+        scrollX: false,
         scrollY: false,
         scrollCollapse: false,
-        scrollX: false,
-        scroller: false,
+        ordering: false, // 关闭排序
         language: { searchPlaceholder: "Search by CVE or CWE..." },
         columns: [
-          { data: 0, width: '10%', orderable: false },
-          { data: 1, width: '8%', orderable: false },
-          { data: 2, width: '10%', orderable: false },
-          { data: 3, width: '10%', orderable: false },
-          { data: 4, width: '8%', orderable: false },
-          { data: 5, width: '10%', orderable: false },
+          { data: 0, width: '12%', orderable: false },
+          { data: 1, width: '10%', orderable: false },
+          { data: 2, width: '12%', orderable: false },
+          { data: 3, width: '12%', orderable: false },
+          { data: 4, width: '8%',  orderable: false },
+          { data: 5, width: '12%', orderable: false },
           {
             data: null,
-            width: '5%',
+            width: '6%',
             orderable: false,
             render: (data, type, row, meta) =>
               `<button onclick="showDetails(${meta.row})">View</button>`
           },
           {
             data: 8,
-            width: '4%',
+            width: '8%',
             orderable: false,
             render: data => `<a href="${data}" target="_blank">Link</a>`
           }
