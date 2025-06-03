@@ -1,140 +1,143 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Vulnerability API Table</title>
-<link rel="stylesheet" href="/assets/css/jquery.dataTables.min.css">
-<style>
-	body { font-family: Arial, sans-serif; padding: 20px; }
-	#severityFilter { margin-bottom: 10px; }
-	table.dataTable { table-layout: fixed; }
-	table.dataTable td { white-space: normal !important; }
-	.pagination { margin-top: 15px; }
+  <meta charset="UTF-8">
+  <title>Vulnerability API Table</title>
+  <link rel="stylesheet" href="/assets/css/jquery.dataTables.min.css">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    #severityFilter { margin-bottom: 10px; }
+    table.dataTable { table-layout: fixed; }
+    table.dataTable td { white-space: normal !important; }
+    .pagination { margin-top: 15px; }
 
-	/* Modal 样式 */
-	#modal {
-		display: none;
-		position: fixed;
-		top: 0; left: 0; right: 0; bottom: 0;
-		background-color: rgba(0, 0, 0, 0.5);
-		justify-content: center;
-		align-items: center;
-		z-index: 1000;
-	}
-	#modalContent {
-		background: #fff;
-		padding: 20px;
-		border-radius: 8px;
-		max-width: 600px;
-		max-height: 80%;
-		overflow-y: auto;
-		box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-	}
-	#modalContent h3 {
-		margin-top: 0;
-	}
-	#closeModal {
-		margin-top: 20px;
-	}
-</style>
+    /* Modal 样式 */
+    #modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #modalContent {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 600px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+    #modalContent h3 {
+      margin-top: 0;
+    }
+    #detailsText pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    #closeModal {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
 
-<label for="severityFilter">Filter by Severity:</label>
-<select id="severityFilter">
-	<option value="">All</option>
-	<option value="Low">Low</option>
-	<option value="Moderate">Moderate</option>
-	<option value="High">High</option>
-	<option value="Critical">Critical</option>
-</select>
+  <label for="severityFilter">Filter by Severity:</label>
+  <select id="severityFilter">
+    <option value="">All</option>
+    <option value="Low">Low</option>
+    <option value="Moderate">Moderate</option>
+    <option value="High">High</option>
+    <option value="Critical">Critical</option>
+  </select>
 
-<table id="vulnerabilityTable" class="display" style="width:100%">
-	<thead>
-		<tr>
-			<th>Package</th><th>Patched Version</th><th>CVE</th><th>CWE</th>
-			<th>Severity</th><th>Semver</th><th>Details</th><th>URL</th>
-		</tr>
-	</thead>
-	<tbody></tbody>
-</table>
+  <table id="vulnerabilityTable" class="display" style="width:100%">
+    <thead>
+      <tr>
+        <th>Package</th><th>Patched Version</th><th>CVE</th><th>CWE</th>
+        <th>Severity</th><th>Semver</th><th>Details</th><th>URL</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-<!-- 弹出层 -->
-<div id="modal">
-	<div id="modalContent">
-		<h3>Details</h3>
-		<div id="detailsText"></div>
-		<button id="closeModal">Close</button>
-	</div>
-</div>
+  <!-- 弹出层 -->
+  <div id="modal">
+    <div id="modalContent">
+      <h3>Details</h3>
+      <div id="detailsText"></div>
+      <button id="closeModal">Close</button>
+    </div>
+  </div>
 
-<script src="/assets/js/jquery-3.7.1.min.js"></script>
-<script src="/assets/js/jquery.dataTables.min.js"></script>
-<script>
-	let allData = [];
+  <script src="/assets/js/jquery-3.7.1.min.js"></script>
+  <script src="/assets/js/jquery.dataTables.min.js"></script>
+  <script>
+    let allData = [];
 
-	function renderTable() {
-		const severity = $('#severityFilter').val();
-		const data = allData.filter(r => severity ? r[4] === severity : true);
+    function renderTable() {
+      const severity = $('#severityFilter').val();
+      const data = allData.filter(r => severity ? r[4] === severity : true);
 
-		$('#vulnerabilityTable').DataTable({
-			destroy: true,
-			data: data,
-			deferRender: true,
-			pageLength: 10,
-			paging: true,
-			scrollY: false,
-			scrollCollapse: false,
-			scrollX: false,
-			scroller: false,
-			language: { searchPlaceholder: "Search by CVE or CWE..." },
-			columns: [
-				{ data: 0, width: '10%' },  // Package
-				{ data: 1, width: '8%' },   // Patched Version
-				{ data: 2, width: '10%' },  // CVE
-				{ data: 3, width: '10%' },  // CWE
-				{ data: 4, width: '8%' },   // Severity
-				{ data: 5, width: '10%' },  // Semver
-				{
-					data: null,
-					width: '5%',
-					render: (data, type, row, meta) =>
-						`<button onclick="showDetails(${meta.row})">View</button>`
-				},
-				{
-					data: 8,
-					width: '4%',
-					render: data => `<a href="${data}" target="_blank">Link</a>`
-				}
-			]
-		});
-	}
+      $('#vulnerabilityTable').DataTable({
+        destroy: true,
+        data: data,
+        deferRender: true,
+        pageLength: 10,
+        paging: true,
+        scrollY: false,
+        scrollCollapse: false,
+        scrollX: false,
+        scroller: false,
+        language: { searchPlaceholder: "Search by CVE or CWE..." },
+        columns: [
+          { data: 0, width: '10%' },  // Package
+          { data: 1, width: '8%' },   // Patched Version
+          { data: 2, width: '10%' },  // CVE
+          { data: 3, width: '10%' },  // CWE
+          { data: 4, width: '8%' },   // Severity
+          { data: 5, width: '10%' },  // Semver
+          {
+            data: null,
+            width: '5%',
+            render: (data, type, row, meta) =>
+              `<button onclick="showDetails(${meta.row})">View</button>`
+          },
+          {
+            data: 8,
+            width: '4%',
+            render: data => `<a href="${data}" target="_blank">Link</a>`
+          }
+        ]
+      });
+    }
 
-	// 处理弹出详情内容
-	function showDetails(index) {
-		const item = allData[index];
-		const api = item[6];
-		const description = item[7];
-		$('#detailsText').html(`<strong>API:</strong><pre>${api}</pre><strong>Description:</strong><pre>${description}</pre>`);
-		$('#modal').css('display', 'flex');
-	}
+    function showDetails(index) {
+      const item = allData[index];
+      const api = item[6];
+      const description = item[7];
+      $('#detailsText').html(
+        `<strong>API:</strong><pre>${api}</pre><strong>Description:</strong><pre>${description}</pre>`
+      );
+      $('#modal').css('display', 'flex');
+    }
 
-	$('#closeModal').on('click', () => {
-		$('#modal').hide();
-	});
+    $('#closeModal').on('click', () => {
+      $('#modal').hide();
+    });
 
-	$(document).ready(() => {
-		$.getJSON('../../data/RQ1/data.json', json => {
-			allData = json.flatMap(e =>
-				e.vulnerableAPI.map(api => [
-					e.name, e.patchedVersion, e.CVE, e.CWE, e.severityLevel,
-					e.semver, api.API, api.description, e.URL
-				])
-			);
-			renderTable();
-			$('#severityFilter').on('change', renderTable);
-		});
-	});
-</script>
+    $(document).ready(() => {
+      $.getJSON('../../data/RQ1/data.json', json => {
+        allData = json.flatMap(e =>
+          e.vulnerableAPI.map(api => [
+            e.name, e.patchedVersion, e.CVE, e.CWE, e.severityLevel,
+            e.semver, api.API, api.description, e.URL
+          ])
+        );
+        renderTable();
+        $('#severityFilter').on('change', renderTable);
+      });
+    });
+  </script>
 </body>
 </html>
