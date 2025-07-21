@@ -1,6 +1,6 @@
 ---
 # the default layout is 'page'
-icon: fas fa-info-circle
+icon: fas
 order: 2
 ---
 ## Vulnerabilities Identified by VULNANALYZER
