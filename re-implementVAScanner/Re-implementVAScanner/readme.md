@@ -6,9 +6,9 @@ This project re-implements the workflow of **VAScanner** for automated vulnerabl
 
 ## (1) Download
 
-1. Download the VAScanner code  
+1. Download the Re-implementVAScanner code  
 2. Download the vulnerable libraries  
-3. Download the Tai-e installation package  
+3. Download the Tai-e installation package: [Tai-e](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/tree/main/re-implementVAScanner/Tai-e)
 4. Download vulnerability information file: `vulnerableInformation.txt`  
 
    - **Source:** [GitHub Advisory Database](https://github.com/advisories)  
@@ -26,15 +26,10 @@ This project re-implements the workflow of **VAScanner** for automated vulnerabl
 ## (2) Installation
 
 1. Install Tai-e: VAScanner uses **Tai-e** to build call graphs.  
-   - For **Windows**:  
-     ```bash
-     install.bat
-     ```
-   - For **Linux**:  
-     ```bash
-     ./install
-     ```
-
+   - For **Windows**:  [install.bat](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/blob/main/re-implementVAScanner/Tai-e/install.bat)
+     
+   - For **Linux**: [install](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/blob/main/re-implementVAScanner/Tai-e/install.sh) 
+   
 ---
 
 ## (3) Run
@@ -47,7 +42,7 @@ This project re-implements the workflow of **VAScanner** for automated vulnerabl
 
    - vulnerableLibraryPath: The folder where the vulnerable libraries are located
 
-3. Run the **main** method to obtain the reproduced VAScanner vulnerable API file:
+3. Run the `main` method to obtain the reproduced VAScanner vulnerable API file:
    
    - VAScannerVulnerableAPI.json
 
