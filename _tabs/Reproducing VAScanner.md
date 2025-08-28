@@ -39,7 +39,7 @@ Install Tai-e: VAScanner uses **Tai-e** to build call graphs.
 ## Run
 
 1. In the path of the vulnerable library, run **Tai-e** to generate the call graph (`call-edges.txt`) for each vulnerable library:  
-   ```cmd
+   ```
    mvn neu.lab:Tai-e-plugin:tai-e
    ```
 2. Configure the paths of:
