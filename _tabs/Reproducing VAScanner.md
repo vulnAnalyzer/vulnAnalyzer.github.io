@@ -11,7 +11,7 @@ This project re-implements the workflow of **VAScanner** for automated vulnerabl
 ## Download
 
 1. Download the [Re-implementVAScanner](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/tree/main/re-implementVAScanner) code  
-2. Download the vulnerable libraries: [vulnerable libraries](https://drive.google.com/drive/u/1/my-drive?dmr=1&ec=wgc-drive-globalnav-goto)
+2. Download the vulnerable libraries: [vulnerable libraries](https://drive.google.com/drive/folders/1Y9OAoiSpWltF9wPnGntlLwpDe46hMebC?usp=drive_link)
 3. Download the `Tai-e` installation package: [Tai-e](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/tree/main/re-implementVAScanner/Tai-e)
 4. Download vulnerability information file: [vulnerableInformation.txt](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/blob/main/re-implementVAScanner/vulnerableInformation.txt)  
 
