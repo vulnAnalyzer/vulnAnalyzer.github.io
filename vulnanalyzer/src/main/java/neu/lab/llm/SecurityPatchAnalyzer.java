@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 public class SecurityPatchAnalyzer {
     private final static Logger log = LoggerFactory.getLogger(SecurityPatchAnalyzer.class);
-    private static final String API_KEY = "sk-zAfJoMNmQYtL67CgK0kcCZpWqACW6Y9g4L4Zwhauvnf7SBbD"; // littlewheat
+    // LLM API KEY
+    private static final String API_KEY = ""; // littlewheat
     private static final String API_URL = "https://chatapi.littlewheat.com/v1/chat/completions";
 
     /**
