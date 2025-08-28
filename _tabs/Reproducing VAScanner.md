@@ -1,6 +1,7 @@
 ---
-icon: fas fa-stream
+icon: fas fa-tag
 order: 3
+title: Reproducing VAScanner
 ---
 
 # VAScanner Re-implementation
