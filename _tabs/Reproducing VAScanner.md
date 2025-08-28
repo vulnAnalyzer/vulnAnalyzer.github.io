@@ -4,8 +4,6 @@ order: 4
 title: Reproducing VAScanner
 ---
 
-# VAScanner Re-implementation
-
 This project re-implements the workflow of **VAScanner** for automated vulnerable API detection.
 
 ---
