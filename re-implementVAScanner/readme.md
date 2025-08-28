@@ -42,7 +42,7 @@ This project re-implements the workflow of **VAScanner** for automated vulnerabl
 
    - vulnerableLibraryPath: The folder where the vulnerable libraries are located
 
-3. Run the `main` method to obtain the reproduced VAScanner vulnerable API file:
+3. Run the `Re_implementVAScanner::main` method to obtain the reproduced VAScanner vulnerable API file:
    
    - VAScannerVulnerableAPI.json
 

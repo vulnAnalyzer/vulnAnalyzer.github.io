@@ -46,7 +46,7 @@ Install Tai-e: VAScanner uses **Tai-e** to build call graphs.
 
    - vulnerableLibraryPath: The folder where the vulnerable libraries are located
 
-3. Run the `main` method to obtain the reproduced VAScanner vulnerable API file:
+3. Run the `Re_implementVAScanner::main` method to obtain the reproduced VAScanner vulnerable API file:
    
    - VAScannerVulnerableAPI.json
 
