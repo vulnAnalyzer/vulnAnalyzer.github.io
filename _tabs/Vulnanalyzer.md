@@ -26,7 +26,7 @@ When running the program, the following configurations are required:
    Since the number of vulnerability records is large and execution can be time-consuming, you can use `demo.json` first to quickly experience the workflow.  
    Both `demo.json` and `github_vulnerabilities.json` are located in: `src/main/resources`.
 
-2. **Configuration files in `Resource`**  
+2. Configuration files in `resources`  
    - `LLM.properties`: set your `API_KEY` and `API_URL`.
 
 3. Configuration variables **`downloadPath`**  
