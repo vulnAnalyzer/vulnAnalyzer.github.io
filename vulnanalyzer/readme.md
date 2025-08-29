@@ -2,10 +2,10 @@
 
 ## Workflow
 
-1. **Read vulnerability information** that includes patched versions.  
-2. **Identify vulnerable versions adjacent to the patched versions** and download their source code packages.  
-3. **Extract code differences** between the patched and adjacent vulnerable versions using the abstract syntax tree (AST).  
-4. **Identify vulnerable APIs** using a large language model (LLM).  
+1. Read vulnerability information that includes patched versions.  
+2. Identify vulnerable versions adjacent to the patched versions and download their source code packages.  
+3. Extract code differences between the patched and adjacent vulnerable versions using the abstract syntax tree (AST).  
+4. Identify vulnerable APIs using a large language model (LLM).  
 
 ## Configuration
 
