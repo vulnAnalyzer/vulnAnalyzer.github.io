@@ -26,8 +26,14 @@ public class JarDiffChecker {
      */
     public void start(String oldJar, String newJar) {
         JarDiffChecker checker = new JarDiffChecker();
-        String output = "E:/work4/newOutput/" + checker.extractArtifactId(newJar);
         try {
+            Path path = Paths.get("src/main/resources/vulnAnalyzerResults/");
+            // 确保文件存在
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+            String output = path.toAbsolutePath().toString() + File.separatorChar + checker.extractArtifactId(newJar);
+
             checker.compareJars(oldJar, newJar, output);
         } catch (Exception e) {
             log.info(e.getMessage());
@@ -59,15 +65,14 @@ public class JarDiffChecker {
                     Files.createDirectories(deletedPath);
                     deleted = true;
                 }
-
                 log.info("❌ Removed method: {}", methodSig);
-                writeToFile(deletedPath.resolve(sanitizeFileName(methodSig) + ".java"), oldMethods.get(methodSig));
-            }
-        }
-
-        // 找到修改的方法
-        for (String methodSig : oldMethods.keySet()) {
-            if (newMethods.containsKey(methodSig)) {
+                try {
+                    writeToFile(deletedPath.resolve(sanitizeFileName(methodSig) + ".java"), oldMethods.get(methodSig));
+                } catch (Exception e) {
+                    log.info("File {} path error", sanitizeFileName(methodSig) + ".java");
+                }
+            } else {
+                // 找到修改的方法
                 String oldBody = oldMethods.get(methodSig);
                 String newBody = newMethods.get(methodSig);
                 if (!oldBody.equals(newBody)) {
@@ -77,8 +82,13 @@ public class JarDiffChecker {
                         modified = true;
                     }
                     log.info("🔄 Modified method: {}", methodSig);
-                    writeToFile(modifiedOldPath.resolve(sanitizeFileName(methodSig) + ".java"), oldBody);
-                    writeToFile(modifiedNewPath.resolve(sanitizeFileName(methodSig) + ".java"), newBody);
+                    try {
+                        Path resolve = modifiedOldPath.resolve(sanitizeFileName(methodSig) + ".java");
+                        writeToFile(resolve, oldBody);
+                        writeToFile(modifiedNewPath.resolve(sanitizeFileName(methodSig) + ".java"), newBody);
+                    } catch (Exception e) {
+                        log.info("File {} path error", sanitizeFileName(methodSig) + ".java");
+                    }
                 }
             }
         }
@@ -91,7 +101,11 @@ public class JarDiffChecker {
                     add = true;
                 }
                 log.info("✅ Added method: {}", methodSig);
-                writeToFile(addedPath.resolve(sanitizeFileName(methodSig) + ".java"), newMethods.get(methodSig));
+                try {
+                    writeToFile(addedPath.resolve(sanitizeFileName(methodSig) + ".java"), newMethods.get(methodSig));
+                } catch (Exception e) {
+                    log.info("File {} path error", sanitizeFileName(methodSig) + ".java");
+                }
             }
         }
     }
@@ -109,6 +123,7 @@ public class JarDiffChecker {
         // 解析 Java 源码
         Files.walk(tempDir)
                 .filter(Files::isRegularFile)
+                .filter(file -> file.toString().endsWith(".java")) // 只处理 .java 文件
                 .forEach(file -> {
                     try {
                         CompilationUnit cu = StaticJavaParser.parse(file);
@@ -120,7 +135,7 @@ public class JarDiffChecker {
                             String className = packageName + clazz.getNameAsString();
 
                             clazz.findAll(MethodDeclaration.class).forEach(method -> {
-                                String returnType = method.getType().toString().replace("<", "0").replace(">", "0");
+                                String returnType = method.getType().toString().replace("<", "0").replace(">", "0").replace("?", "_");
                                 String methodName = method.getNameAsString();
                                 String params = method.getParameters().toString(); // 保留原始参数格式
 
@@ -136,7 +151,7 @@ public class JarDiffChecker {
                             });
                         });
                     } catch (Exception e) {
-                        log.error("❌ Error parsing file: {}", file, e);
+                        log.warn("⚠️ Skip non-Java or unparseable file: {}", file);
                     }
                 });
 

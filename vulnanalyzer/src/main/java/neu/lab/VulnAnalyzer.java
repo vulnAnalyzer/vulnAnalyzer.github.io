@@ -11,31 +11,68 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
 
+/**
+ *
+ * Workflow of VulnAnalyzer
+ * 1. Read vulnerability information that includes patched versions.
+ * 2. Identify vulnerable versions adjacent to the patched versions and download their source code packages.
+ * 3. Use the abstract syntax tree (AST) to extract the code differences between the patched and adjacent vulnerable versions.
+ * 4. Use a large language model (LLM) to identify vulnerable APIs.
+ *
+ * Configuration required when running the program:
+ * 1. githubVulnerabilityFile: Configure the file path that stores the vulnerability information of patched versions.
+ *    The default is demo.json. In our experiments, the vulnerability information used is in github_vulnerabilities.json.
+ *    Since there are many vulnerability records and execution can be time-consuming, you can use demo.json first to quickly experience the workflow.
+ *    Both demo.json and github_vulnerabilities.json are located in src/main/resources.
+ *
+ * 2. Configuration files in src/main/resources:
+ *    -LLM.properties: set your API_KEY and API_URL.
+ *
+ * 3. downloadPath: The path for downloading the source code of patched and adjacent vulnerable versions.
+ *
+ */
 public class VulnAnalyzer {
     private final static Logger log = LoggerFactory.getLogger(VulnAnalyzer.class);
 
     public static void main(String[] args) {
         ReadVulnerability readVulnerability = new ReadVulnerability();
-        Map<String, Vulnerability> vulnerabilityMap = readVulnerability.getVulnerability();
-        // 1. Identify patches and adjacent vulnerable versions
+        // 1. Retrieve the patched libraries from the vulnerability knowledge base
+        // githubVulnerabilityFile: Configure the file path that stores the vulnerability information of patched versions
+        String githubVulnerabilityFile = "demo.json";
+        Map<String, Vulnerability> vulnerabilityMap = readVulnerability.getVulnerability(githubVulnerabilityFile);
+        log.info("The patched libraries have been successfully loaded");
+
+
+        // 2. Identify patches and adjacent vulnerable versions
+        // downloadPath: The path for downloading the source code of patched and adjacent vulnerable versions
+        String downloadPath = "E:\\work4\\patchTest";
         VulnerabilityDownloader vulnerabilityDownloader = new VulnerabilityDownloader();
-        vulnerabilityDownloader.getPatchedAndVulnerableVersion();
-        // 2. Compare the patch with the adjacent vulnerability version and extract the different code
+        vulnerabilityDownloader.getPatchedAndVulnerableVersion(downloadPath);
+        log.info("The source code of patched and adjacent vulnerable versions has been successfully downloaded");
+
+
+        // 3. Compare the patch with the adjacent vulnerability version and extract the different code
         FileUtils fileUtils = new FileUtils();
-        List<String[]> diffJars = fileUtils.readJarPaths("src/main/resources/newPatchedPath.txt");
+        List<String[]> diffJars = fileUtils.readJarPaths("src/main/resources/downloadLog.log");
         JarDiffChecker jarDiffChecker = new JarDiffChecker();
         for (String[] diffJar : diffJars) {
             String oldJar = diffJar[1];
             String newJar = diffJar[0];
             jarDiffChecker.start(oldJar, newJar);
         }
-        // 3. Use LLM to obtain vulnerability APIs
-        File output = new File("E:\\work4\\test");
+
+
+        // 4. Use LLM to obtain vulnerability APIs
+        File output = new File("src/main/resources/vulnAnalyzerResults/");
         // 所有存在变化的JARs
         File[] gavs = output.listFiles();
         SecurityPatchAnalyzer securityPatchAnalyzer = new SecurityPatchAnalyzer();
+        String runLog = "src/main/resources/RunLog.log";
+        Set<String> runFiles = new HashSet<>();
         ResourceFile resourceFile = new ResourceFile();
-        Set<String> runFiles = resourceFile.readRunFiles("src/main/resources/RunFiles1.txt");
+        if (new File(runLog).exists()) {
+            runFiles.addAll(resourceFile.readRunFiles("src/main/resources/RunLog.log"));
+        }
         OutPutVulnerability outPutVulnerability = new OutPutVulnerability();
         // 多线程池
         int maxThreads = 36;    // 同时运行的线程数
@@ -51,7 +88,7 @@ public class VulnAnalyzer {
         );
         VulnAnalyzer vulnAnalyzer = new VulnAnalyzer();
         for (File gav : gavs) {
-            Map<String, String> vulnerableAPIs = new ConcurrentHashMap<>();
+            List<VulnerableAPI> vulnerableAPIs = Collections.synchronizedList(new ArrayList<>());
             File[] res = gav.listFiles();
             if (res == null) continue;
 
@@ -75,7 +112,7 @@ public class VulnAnalyzer {
                     String path = actualFile.getPath();
                     if (runFiles.contains(path)) continue;
                     runFiles.add(path);
-                    resourceFile.writeToRunFiles(path, "src/main/resources/RunFiles1.txt");
+                    resourceFile.writeToRunFiles(path, runLog);
                     Callable<Map<String, String>> task;
 
                     switch (operate) {
@@ -96,7 +133,7 @@ public class VulnAnalyzer {
 
                     Future<Map<String, String>> future = executor.submit(task);
                     futures.add(future);
-                    System.out.println("Submitted task for file: " + path);
+                    log.info("Submitted task for file: " + path);
                 }
 
             }
@@ -106,16 +143,23 @@ public class VulnAnalyzer {
                 try {
                     Map<String, String> result = future.get(); // 等待任务完成
                     if (result != null) {
-                        vulnerableAPIs.putAll(result);
+                        for (Map.Entry<String, String> entry : result.entrySet()) {
+                            String key = entry.getKey();
+                            String[] split = key.split(">>>>>");
+                            String operation = split[0];
+                            String API = split[1];
+                            String description = entry.getValue();
+                            vulnerableAPIs.add(new VulnerableAPI(operation,API,description));
+                        }
                     } else {
-                        System.out.println("Task returned empty or null result.");
+                        log.info("Task returned empty or null result.");
                     }
                 } catch (Exception e) {
                     e.printStackTrace(); // 可以根据需要加日志记录失败项
                 }
             }
 
-            vulnerabilityInfo.getVulnerableAPI().putAll(vulnerableAPIs);
+            vulnerabilityInfo.getVulnerableAPI().addAll(vulnerableAPIs);
             if (!vulnerabilityInfo.getVulnerableAPI().isEmpty()) {
                 outPutVulnerability.writeAnalyze(vulnerabilityInfo);
             }
