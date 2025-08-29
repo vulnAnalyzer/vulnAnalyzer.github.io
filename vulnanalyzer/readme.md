@@ -11,17 +11,17 @@
 
 When running the program, the following configurations are required:
 
-1. **`githubVulnerabilityFile`**  
+1. Configuration variables **`githubVulnerabilityFile`**  
    - Configure the file path that stores the vulnerability information of patched versions.  
-   - Default: `demo.json`.  
-   - In experiments, the vulnerability information used is in `github_vulnerabilities.json`.  
-   - Since the number of vulnerability records is large and execution can be time-consuming, you can use `demo.json` first to quickly experience the workflow.  
-   - Both `demo.json` and `github_vulnerabilities.json` are located in: `src/main/resources`.
+   Default: `demo.json`.  
+   In experiments, the vulnerability information used is in `github_vulnerabilities.json`.  
+   Since the number of vulnerability records is large and execution can be time-consuming, you can use `demo.json` first to quickly experience the workflow.  
+   Both `demo.json` and `github_vulnerabilities.json` are located in: `src/main/resources`.
 
 2. **Configuration files in `Resource`**  
    - `LLM.properties`: set your `API_KEY` and `API_URL`.
 
-3. **`downloadPath`**  
+3. Configuration variables **`downloadPath`**  
    - The path for downloading the source code of patched and adjacent vulnerable versions.
 
 ## Running the Project
