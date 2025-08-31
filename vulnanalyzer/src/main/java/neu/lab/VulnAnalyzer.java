@@ -48,7 +48,6 @@ public class VulnAnalyzer {
         // 2. Identify patches and adjacent vulnerable versions
         // downloadPath: The path for downloading the source code of patched and adjacent vulnerable versions
         String downloadPath = "src/main/resources/sourceCode";
-<<<<<<< HEAD
         Path downloadDirectory = Paths.get(downloadPath);
         // 确保文件存在
         if (!Files.exists(downloadDirectory)) {
@@ -58,17 +57,6 @@ public class VulnAnalyzer {
                 throw new RuntimeException(e);
             }
         }
-=======
-    		Path downloadDirectory = Paths.get(downloadPath);
-    		// 确保文件存在
-    		if (!Files.exists(downloadDirectory)) {
-    			try {
-    				Files.createDirectories(downloadDirectory);
-    			} catch (IOException e) {
-    				throw new RuntimeException(e);
-    			}
-    		}
->>>>>>> d3af0f0f44c428e861fe1884313269e57ff8d50a
         VulnerabilityDownloader vulnerabilityDownloader = new VulnerabilityDownloader();
         vulnerabilityDownloader.getPatchedAndVulnerableVersion(downloadPath);
         log.info("The source code of patched and adjacent vulnerable versions has been successfully downloaded");
