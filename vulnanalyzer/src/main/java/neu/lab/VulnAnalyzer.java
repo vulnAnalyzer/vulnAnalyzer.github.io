@@ -40,7 +40,7 @@ public class VulnAnalyzer {
         ReadVulnerability readVulnerability = new ReadVulnerability();
         // 1. Retrieve the patched libraries from the vulnerability knowledge base
         // githubVulnerabilityFile: Configure the file path that stores the vulnerability information of patched versions
-        String githubVulnerabilityFile = "demo2.json";
+        String githubVulnerabilityFile = "demo.json";
         Map<String, Vulnerability> vulnerabilityMap = readVulnerability.getVulnerability(githubVulnerabilityFile);
         log.info("The patched libraries have been successfully loaded");
 
