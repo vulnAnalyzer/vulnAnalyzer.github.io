@@ -6,6 +6,7 @@ order: 2
 
 ## Evaluating VULNANALYZER's efficacy using traditional and LLM baselines
 > **Traditional Methods:** [STEADY](https://link.springer.com/article/10.1007/s10664-020-09830-x?wt_mc=Internal.Event.1.SEM.ArticleAuthorOnlineFirst&utm_source=ArticleAuthorOnlineFirst&utm_medium=email&utm_content=AA_en_06082018&ArticleAuthorOnlineFirst_20200701) and [VASCANNER](https://ieeexplore.ieee.org/abstract/document/10666791)
+>
 > **LLM Methods:** 
 > * gpt-4-0125-preview
 > * gpt-3.5-turbo-0125
