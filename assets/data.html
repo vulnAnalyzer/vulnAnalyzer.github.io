@@ -162,7 +162,7 @@
     });
 
     $(document).ready(() => {
-      $.getJSON('../../data/RQ1/data.json', json => {
+      $.getJSON('../../data/data.json', json => {
         allData = json.flatMap(e =>
           e.vulnerableAPI.map(api => [
             e.name, e.patchedVersion, e.CVE, e.CWE, e.severityLevel,

@@ -16,7 +16,7 @@ order: 2
 > * Gemma-2 27B
 > * DeepSeekCoder 7B
 {: .prompt-tip }
-[**Download the dataset used to evaluate VULNANALYZER's efficacy**](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/blob/main/data/Large-scale%20analysis/Large-scale%20analysis.xlsx)
+[**Download the dataset used to evaluate VULNANALYZER's efficacy**](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/blob/main/data/Large-scale%20analysis.xlsx)
 ## Large-scale Analysis
 > **1,250 CVEs**
 > * 1,846 vulnerable libraries
