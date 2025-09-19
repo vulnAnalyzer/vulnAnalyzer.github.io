@@ -4,7 +4,7 @@ icon: fas fa-info-circle
 order: 2
 ---
 
-## Evaluating VULNANALYZER efficacy using traditional and LLM baselines
+## Evaluating VULNANALYZER's efficacy using traditional and LLM baselines
 > Traditional Method: [STEADY](https://link.springer.com/article/10.1007/s10664-020-09830-x?wt_mc=Internal.Event.1.SEM.ArticleAuthorOnlineFirst&utm_source=ArticleAuthorOnlineFirst&utm_medium=email&utm_content=AA_en_06082018&ArticleAuthorOnlineFirst_20200701) and [VASCANNER](https://ieeexplore.ieee.org/abstract/document/10666791)
 {: .prompt-tip }
 [**Download the dataset used to evaluate VULNANALYZER's efficacy**](https://github.com/vulnAnalyzer/vulnAnalyzer.github.io/blob/main/data/RQ2.xlsxhttps://github.com/vulnAnalyzer/vulnAnalyzer.github.io/blob/main/data/Large-scale%20analysis/Large-scale%20analysis.xlsx)
